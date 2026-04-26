@@ -35,7 +35,7 @@ function App() {
   useEffect(() => {
     fetchBookings(true);
 
-    const interval = setInterval(fetchBookings, 10000);
+    const interval = setInterval(fetchBookings, 100000);
     return () => clearInterval(interval);
   }, []);
 

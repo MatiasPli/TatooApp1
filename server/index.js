@@ -15,6 +15,8 @@ app.get('/', (req, res) => {
   res.json({ message: 'Tattoo Booking API is running' });
 });
 
+app.use('/api/bookings', require('./routes/bookings'));
+
 const PORT = process.env.PORT || 5000;
 
 mongoose

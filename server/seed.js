@@ -63,6 +63,16 @@ const artists = [
     speciality: 'Realism & Portraits',
     hourlyRate: 180,
   },
+  {
+    name: 'Lena Hartmann',
+    speciality: 'Watercolour & Illustrative',
+    hourlyRate: 135,
+  },
+  {
+    name: 'Marcus Webb',
+    speciality: 'Neo-Traditional',
+    hourlyRate: 160,
+  },
 ];
 
 async function seed() {

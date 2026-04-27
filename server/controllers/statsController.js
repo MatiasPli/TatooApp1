@@ -3,25 +3,10 @@ const Booking = require('../models/Booking');
 const getBookingStats = async (req, res) => {
   try {
     const totalBookings = await Booking.countDocuments();
-
-    const depositResult = await Booking.aggregate([
-      { $match: { depositPaid: true } },
-      {
-        $lookup: {
-          from: 'artists',
-          localField: 'artistId',
-          foreignField: '_id',
-          as: 'artist',
-        },
-      },
-      { $unwind: '$artist' },
-      {
-        $group: {
-          _id: null,
-          totalDepositsCollected: { $sum: { $multiply: ['$artist.hourlyRate', 0.2] } },
-        },
-      },
-    ]);
+    const pendingCount = await Booking.countDocuments({ status: 'pending' });
+    const confirmedCount = await Booking.countDocuments({ status: 'confirmed' });
+    const completedCount = await Booking.countDocuments({ status: 'completed' });
+    const cancelledCount = await Booking.countDocuments({ status: 'cancelled' });
 
     const avgResult = await Booking.aggregate([
       { $group: { _id: null, avgSessionDuration: { $avg: '$sessionDuration' } } },
@@ -29,7 +14,10 @@ const getBookingStats = async (req, res) => {
 
     res.json({
       totalBookings,
-      totalDepositsCollected: depositResult[0]?.totalDepositsCollected.toFixed(2) || 0,
+      pendingCount,
+      confirmedCount,
+      completedCount,
+      cancelledCount,
       avgSessionDuration: avgResult[0]?.avgSessionDuration.toFixed(1) || 0,
     });
   } catch (err) {

@@ -7,6 +7,8 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [editingBooking, setEditingBooking] = useState(null);
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
   const bookingsRef = useRef([]);
 
   const fetchBookings = (showSpinner = false) => {
@@ -34,7 +36,6 @@ function App() {
 
   useEffect(() => {
     fetchBookings(true);
-
     const interval = setInterval(fetchBookings, 100000);
     return () => clearInterval(interval);
   }, []);
@@ -63,6 +64,17 @@ function App() {
       .catch((err) => setError(err.message));
   };
 
+  const filtered = bookings
+    .filter((b) => !statusFilter || b.status === statusFilter)
+    .filter((b) => {
+      const q = search.toLowerCase();
+      return (
+        b.clientId?.name?.toLowerCase().includes(q) ||
+        b.artistId?.name?.toLowerCase().includes(q) ||
+        b.tattooDescription?.toLowerCase().includes(q)
+      );
+    });
+
   return (
     <div>
       <h1>Tattoo Booking Manager</h1>
@@ -73,11 +85,28 @@ function App() {
         onCancel={() => setEditingBooking(null)}
       />
 
+      <div style={{ display: 'flex', gap: '10px', marginBottom: '16px' }}>
+        <input
+          type="text"
+          placeholder="Search by client, artist or description..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          style={{ flex: 1 }}
+        />
+        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+          <option value="">All statuses</option>
+          <option value="pending">Pending</option>
+          <option value="confirmed">Confirmed</option>
+          <option value="completed">Completed</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+      </div>
+
       {loading && <p className="status-message">Loading bookings...</p>}
       {error && <p className="error-message">Error: {error}</p>}
       {!loading && !error && (
         <BookingList
-          bookings={bookings}
+          bookings={filtered}
           onDelete={handleDelete}
           onEdit={setEditingBooking}
         />
